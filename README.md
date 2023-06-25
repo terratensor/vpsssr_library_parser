@@ -129,8 +129,8 @@ db_vpsssr_paragraphs
 
 При обработке файлов в консоли после каждой успешно обработанной книги будет появляться сообщение с наименованием и номером файла:
 ```
-2023/06/22 11:11:52 Яроцкий. На всех фронтах.docx #8469 done
-2023/06/22 11:11:52 Ярошенко. Повторение пройденного.docx #8470 done
+2023/06/25 21:19:46 Об иcкоренении глобальной угрозы «международного терроризма».docx #26 done
+2023/06/25 21:19:46 Об имитационно-провокационной деятельности.docx #27 done
 ```
 Иногда в процессе на экран могут вылетать большие «портянки» текста с параграфами - это лог медленного запроса, который выполнялся в БД более 200 мс,
 не обращайте на это внимание, это информационное сообщение, книга и параграфы в этом случае все равно сохранены в БД.
@@ -158,7 +158,7 @@ db_vpsssr_paragraphs
 docker exec -it book-parser-manticore indexer vpsssr_library
 ```
 
-После того как данный будут проиндексированы необходимо **обязательно** перезапустить контейнеры common_library_parser, сделать это можно командами:
+После того как данный будут проиндексированы необходимо **обязательно** перезапустить контейнеры vpsssr_library_parser, сделать это можно командами:
 
 ```
 docker compose down
@@ -219,13 +219,13 @@ POST localhost:9308/search
 --------------------------
 ### Дополнительные сведения:
 
-**Остановка контейнеров book-parser-common**
+**Остановка контейнеров book-parser-vpsssr**
 
 ```
 docker-compose down --remove-orphans
 ```
 
-**Запуск контейнеров book-parser-common из папки проекта**
+**Запуск контейнеров book-parser-vpsssr из папки проекта**
 
 ```
 docker compose up --build -d
@@ -234,13 +234,13 @@ docker compose up --build -d
 ### Первый запуск manticore indexer, если еще не создана таблица common_library
 
 ```
-docker exec -it book-parser-manticore indexer common_library
+docker exec -it book-parser-manticore indexer vpsssr_library
 ```
 
 ### Повторный запуск manticore indexer, если таблица существует, для переиндексации
 
 ```
-docker exec -it book-parser-manticore indexer common_library --rotate
+docker exec -it book-parser-manticore indexer vpsssr_library --rotate
 ```
 
 #### Бэкап postgres БД:
@@ -249,19 +249,19 @@ docker exec -it book-parser-postgres bash
 ```
 
 ```
-pg_dump --dbname=book-parser --username=app --host=postgres-book-parser | gzip -9 > book-parser-backup-filename.gz
+pg_dump --dbname=vpsssr-library --username=app --host=postgres-book-parser | gzip -9 > vpsssr-library_backup-filename.gz
 ```
 
 Скопировать файл бэкапа в контейнер докера для восстановления БД, распаковать из gz, запустить загрузку бэкапа в БД
 
 ```
-cp book-parser-backup-filename.gz book-parser-postgres:app/book-parser-backup-filename.gz
+cp vpsssr-library_backup-filename.gz book-parser-postgres:app/vpsssr-library_backup-filename.gz
 ```
 ```
-gzip -d book-parser-backup-filename.gz
+gzip -d vpsssr-library_backup-filename.gz
 ```
 ```
-psql -U app -d lib < book-parser-backup-filename.sql
+psql -U app -d lib < vpsssr-library_backup-filename.sql
 ```
 
 #### Остановка и удаление БД. ВНИМАНИЕ ДАННЫЕ БУДУТ УДАЛЕНЫ.
@@ -273,11 +273,5 @@ psql -U app -d lib < book-parser-backup-filename.sql
 ```
 -h --help помощь
 -b, --batchSize int   размер пакета по умолчанию (default batch size) (default 3000)
--o, --output string   путь хранения файлов для обработки (default "./process/")
-```
-
-##### Сборка бинарника, нужно для разработки:
-
-```
-GOOS=windows GOARCH=amd64 go build -o ./book-parser-gorm.exe ./common/cmd/main.go
+-o, --output string   путь хранения файлов для обработки (default "./books/")
 ```
