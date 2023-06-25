@@ -33,16 +33,12 @@ git clone https://github.com/terratensor/vpsssr_library_parser.git
 
 Увидите сообщение в консоли об успешном клонировании:
 ```
-Cloning into 'common_library_parser'...
-fatal: helper error (-1): User cancelled dialog.
-Username for 'https://github.com':
-c:\terratensor>git clone https://github.com/terratensor/common_library_parser.git
-Cloning into 'common_library_parser'...
-remote: Enumerating objects: 20, done.
-remote: Counting objects: 100% (20/20), done.
-remote: Compressing objects: 100% (15/15), done.
-Receiving objects: 100% (20/20), 6.48 KiB | 6.48 MiB/s, done.
-Resolving deltas: 100% (4/4), done.
+Cloning into 'vpsssr_library_parser'...
+remote: Enumerating objects: 71, done.
+remote: Counting objects: 100% (71/71), done.
+remote: Compressing objects: 100% (62/62), done.
+remote: Total 71 (delta 3), reused 67 (delta 2), pack-reused 0
+Unpacking objects: 100% (71/71), 22.11 MiB | 3.24 MiB/s, done.
 ```
 
 После наберите в консоли Git CMD
@@ -58,28 +54,27 @@ ls -la
 
 Увидите следующую структуру папки:
 ```
-total 32
-drwxrwx---+ 1 username Domain Users    0 Jun 22 13:30 .
-drwxrwx---+ 1 username Domain Users    0 Jun 22 13:30 ..
-drwxrwx---+ 1 username Domain Users    0 Jun 22 13:30 .git
--rwxrwx---+ 1 username Domain Users 8880 Jun 22 13:30 README.md
-drwxrwx---+ 1 username Domain Users    0 Jun 22 13:30 docker
--rwxrwx---+ 1 username Domain Users  957 Jun 22 13:30 docker-compose.yml
-drwxrwx---+ 1 username Domain Users    0 Jun 22 13:30 books
+total 20
+drwxrwxrwx 1 username username  4096 Jun 25 20:54 .
+drwxrwxrwx 1 username username  4096 Jun 25 20:54 ..
+drwxrwxrwx 1 username username  4096 Jun 25 20:54 .git
+-rwxrwxrwx 1 username username  1526 Jun 25 20:54 LICENSE
+-rwxrwxrwx 1 username username 11675 Jun 25 20:54 README.md
+drwxrwxrwx 1 username username  4096 Jun 25 20:54 books
+drwxrwxrwx 1 username username  4096 Jun 25 20:54 docker
+-rwxrwxrwx 1 username username   950 Jun 25 20:54 docker-compose.yml
 ```
-
-В папке books находятся 50 толстых книг ВП СССР
 
 Скачайте последнюю версию парсера book-parser-vpsssr.exe.
 Ссылка на файл находится в секции Assets страницы описания релиза
 
 https://github.com/terratensor/book-parser/releases/latest
 
-Сохраните book-parser-vpsssr.exe в папке с проектом ./vpsssr_library_parser
+Сохраните book-parser-vpsssr.exe в папке с проектом .terratensor/vpsssr_library_parser
 
 Далее запустите windows docker (через меню пуск)
 
-После запуска необходимо проверить, что нет запущенных контейнеров с manticoresearch (меню containers), если есть остановить их или удалить, иначе будет конфликт доступа к портам.
+После запуска необходимо проверить, что нет запущенных контейнеров с manticoresearch и postgres (меню containers), если есть остановить их или удалить, иначе будет конфликт доступа к портам.
 
 В консоли Git CMD, где ранее создали папку и клонировали репозиторий для запуска контейнера с парсером vpsssr_library_parser набрать:
 
@@ -93,33 +88,34 @@ docker compose up --build -d
 
 запустится база данных postgres и manticore search
 
-- Будет создана локальная БД с именем common-library
+- Будет создана локальная БД с именем vpsssr-library
 - Имя пользователя app
 - Пароль secret
-- Порт для подключения к БД 54322
+- Порт для подключения к БД 54323
 
 Эти настройки можно увидеть или изменить в файле docker-compose.yml
 ```
+    ports:
+      - "54323:5432"
     environment:
       APP_ENV: dev
       POSTGRES_USER: app
       POSTGRES_PASSWORD: secret
-      POSTGRES_DB: common-library
+      POSTGRES_DB: vpsssr-library
 ```
 
-Папка по умолчанию, где размещены толстые книги ВП СССР  — `books`, с помощью параметра `-o` можно указать любой другой путь к нужной папке, в конце пути обязательно поставить слэш
+В папке `books` по умолчанию размещены 50 толстых книг ВП СССР, при необходимости вы можете изменить путь до папки с книгами. С помощью параметра `-o` можно указать любой другой путь к нужной папке, в конце пути обязательно поставить слэш
 
 Запустите book-parser-vpsssr.exe:
 
 ```
-book-parser-common.exe
+./book-parser-vpsssr.exe
 ```
-
 
 Или запустите book-parser-common.exe с параметром -o и укажите нужную папку, где расположены файлы для обработки, например, для другой своей папки `/books/VPSSSR/DOCX/`:
 
 ```
-book-parser-common.exe -o ./books/VPSSSR/DOCX/
+./book-parser-vpsssr -o ./books/VPSSSR/DOCX/
 ```
 
 Будет произведена обработка docx файлов и запись их в таблицы БД:
