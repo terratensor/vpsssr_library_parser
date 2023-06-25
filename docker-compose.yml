@@ -31,7 +31,6 @@ services:
       - "54323:5432"
     environment:
       APP_ENV: dev
-      PG_DSN: "host=localhost user=app password=secret dbname=common-library port=54322 sslmode=disable TimeZone=Europe/Moscow"
       POSTGRES_USER: app
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: vpsssr-library
