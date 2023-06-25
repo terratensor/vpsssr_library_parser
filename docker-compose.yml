@@ -1,0 +1,42 @@
+version: '3.5'
+
+services:
+  bs-manticore:
+    container_name: book-parser-manticore
+    image: manticoresearch/manticore
+    ports:
+      - "127.0.0.1:9306:9306"
+      - "127.0.0.1:9308:9308"
+      - "127.0.0.1:9312:9312"
+
+    cap_add:
+        - IPC_LOCK
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - manticore:/var/lib/manticore
+      - manticore:/var/log/manticore
+      - ./docker/manticore/manticore.conf:/etc/manticoresearch/manticore.conf
+
+  postgres-book-parser:
+    container_name: book-parser-postgres
+    image: postgres:15.1-alpine
+    ports:
+      - "54322:5432"
+    environment:
+      APP_ENV: dev
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: common-library
+    volumes:
+      - postgres-bp:/var/lib/postgresql/data
+
+volumes:
+  postgres-bp:
+  manticore:
